@@ -39,7 +39,19 @@ After that we use formula: `m^d mod n` where m is our bytes_message which was tr
 For verification, we will use `s` (the resulting signature) public exponent `e` and `n`: `m' = s^e mod n` 
 And If m and m' are not equals so somthing went wrong.
 
+TODO: чому безпосереднiй пiдпис за допомогою "textbook RSA"є вразливим i навiщо використовується схема доповнення PSS.
+
 ## 6
+
+`key_data` hear is same text which place in `key.pub`, we use `serialization.load_pem_public_key` 
+to translate ordenary text into the desired Python format that can be used for encryption.
+
+```commandline
+key_data = key_path.read_bytes()
+public_key = serialization.load_pem_public_key(key_data)
+```
+
+After that we used special function `.encrypt()` and we pass on our message, and algorithm (hashes.SHA256()).
 
 ## 7
 
