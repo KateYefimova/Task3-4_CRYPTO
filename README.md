@@ -23,7 +23,7 @@ In subtask 5 we need to sing our message «give my friend 2 bitcoins for a pizza
 $$\begin{aligned}
  \text{message} & \\
  \downarrow \text{   }& \text{ SHA-256}\\
- \text{bytes_message} & \\
+ \text{bytes-message} & \\
  \downarrow \text{   }& \text{ RSA-PSS} \\
  \text{signature} & \\
 \end{aligned}$$
@@ -43,8 +43,10 @@ TODO: чому безпосереднiй пiдпис за допомогою "te
 
 ## 6
 
+In subtask 6 we have the same message = «give my friend 2 bitcoins for a pizza». 
+
 `key_data` hear is same text which place in `key.pub`, we use `serialization.load_pem_public_key` 
-to translate ordenary text into the desired Python format that can be used for encryption.
+to translate ordinary text into the desired Python format that can be used for encryption.
 
 ```commandline
 key_data = key_path.read_bytes()
@@ -59,3 +61,10 @@ After that we used special function `.encrypt()` and we pass on our message, and
 
 ## Contribution
 
+## Reference
+
+1. https://medium.com/@keithacrawfordjr/rsaprivatekey-encryption-in-python-7c78ec254ceb
+2. https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/
+3. ...
+4. ...
+5. ...
