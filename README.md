@@ -116,26 +116,33 @@ For period, we need not_before ~~--~~ not_after. It's 90 days 23 hours 59 minute
 
 ## 8
 
-In subtask 8 we use the same formula but with `reverse` to bring up the latest, 
+In subtask 8 we use the same formula but with `max_by` to bring up the latest, 
 and with `> certificat_kse.json` to redirect output.
 
 ```bush
-curl -s 'https://crt.sh/?Identity=kse.ua&output=json' \
+curl -fsS 'https://crt.sh/?Identity=kse.ua&output=json' \
 | jq '
 [
   .[]
-(base) hanna@Mac Task3-4_CRYPTO % >....                                                                                                                           
+  | select((.common_name // "" | ascii_downcase) == "kse.ua")
 ]
-| unique_by(.id)
-| sort_by(.not_after)
-| reverse
-| .[0]
-' > certificat_kse.json      
+| max_by(.not_after)
+' > certificat_kse.json   
 ```
 
 
 
 ## Contribution
+
+Halka Hanna
+
+1. Working with tasks 5-8
+2. Description in report of tasks 5-8
+
+Kate Yefimova
+
+1. 5
+2. 6
 
 ## Reference
 
@@ -144,3 +151,7 @@ curl -s 'https://crt.sh/?Identity=kse.ua&output=json' \
 3. <https://billatnapier.medium.com/provable-secure-signatures-with-rsa-8c1ca7d68433>
 4. <https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/>
 5. ...
+
+## Interaction with AI
+1. [Corection of bash formula in task 8](https://chatgpt.com/s/t_69efdac1aba08191a5240fbe0001ac37)
+2. 
