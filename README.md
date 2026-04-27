@@ -82,6 +82,38 @@ After that we used special function `.encrypt()` and we pass on our message, and
 
 ## 7
 
+In subtask 7 we will use `crt.sh` service. We will look only in columns where Common Name = kse.ua.
+
+![Знімок екрана 2026-04-27 о 11.45.15 пп.png](Images/kse_in_crt.png)
+
+But this service has to mach data. So we will use this command:
+
+```bush
+curl -s 'https://crt.sh/?Identity=kse.ua&output=json' \
+| jq '
+[
+  .[]
+  | select((.common_name // "" | ascii_downcase) == "kse.ua")
+]
+| sort_by(.not_before)
+| .[0]
+'
+```
+
+We use `jq` to read all information from the website, and add `&output=json` in the end of the link.
+Then we search for columns Common Name = kse.ua, and sort them $\downarrow$ (.not_before) and took only 1 certificate.
+
+*  "not_before": "2021-06-19T00:00:00",
+*  "not_after": "2021-09-17T23:59:59",
+
+For period, we need not_before ~~--~~ not_after. It's 90 days 23 hours 59 minutes and 59 seconds.
+
+**In summary:**
+
+* Fist certificate was issued: 2021-06-19 00:00:00
+* It was valid until: 2021-09-17 23:59:59
+* Period: 90 days 23 hours 59 minutes and 59 seconds
+
 ## 8
 
 ## Contribution
