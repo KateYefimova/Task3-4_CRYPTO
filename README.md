@@ -116,6 +116,25 @@ For period, we need not_before ~~--~~ not_after. It's 90 days 23 hours 59 minute
 
 ## 8
 
+In subtask 8 we use the same formula but with `reverse` to bring up the latest, 
+and with `> certificat_kse.json` to redirect output.
+
+```bush
+curl -s 'https://crt.sh/?Identity=kse.ua&output=json' \
+| jq '
+[
+  .[]
+(base) hanna@Mac Task3-4_CRYPTO % >....                                                                                                                           
+]
+| unique_by(.id)
+| sort_by(.not_after)
+| reverse
+| .[0]
+' > certificat_kse.json      
+```
+
+
+
 ## Contribution
 
 ## Reference
