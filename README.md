@@ -4,17 +4,81 @@
 
 ## 1
 
+SHA-256 - криптографічна хеш-функція стандарту FIPS 180-4, що належить до сімейства SHA-2. Вона перетворює вхідне повідомлення довільної довжини на 256-бітне (32-байтне) хеш-значення. Алгоритм базується на конструкції Меркла–Дамгора і використовує 64 раунди стиснення з константами, що виведені з кубічних коренів простих чисел.
+
+Перевірка коректності реалізації проводилася на офіційних тестових векторах NIST. Усі три тести пройдено успішно
+
+<img width="716" height="386" alt="image" src="https://github.com/user-attachments/assets/192da4df-35b3-4d10-a130-2d48bc657a65" />
+
+Третій тестовий вектор є особливо важливим, оскільки повідомлення завдовжки 448 біт охоплює граничний випадок padding-у (повідомлення точно заповнює поле до довжини). Всі результати збігаються з еталонними значеннями NIST, що підтверджує коректність реалізації.
+
 ## 2
 
+Необхідно підібрати випадковий 20-байтний бінарний префікс P до повідомлення M = "give my friend 2 bitcoinsfor a pizza" такий, щоб:
+
+                                                        SHA-256(P || M) = "00000000" + ...
+де "00000000" — 8 шістнадцяткових нулів, що відповідають 32 нульовим бітам на початку хешу. Ця задача є демонстрацією принципу Proof-of-Work, покладеного в основу протоколів Bitcoin.
+
+Ймовірність того, що випадковий хеш починається з 32 нульових бітів, становить 1/2^32 ≈ 2.3 × 10^-10. Отже, в середньому потрібно ~4.3 мільярди спроб. При швидкості ~3 мільйони хешів/секунду Python-реалізацією - це приблизно 1400 секунд.
+
+Скрипт містить дві функції: find_prefix() — з власною реалізацією SHA-256, та find_fast_prefix() — з використанням стандартної бібліотеки hashlib для максимальної швидкості. Обидві демонструють один і той самий підхід:
+
+Після завершення пошуку програма виводить знайдений префікс та відповідний хеш:
+
+<img width="722" height="272" alt="image" src="https://github.com/user-attachments/assets/65898124-1554-4339-b1ff-5f386d6772bc" />
+
+
 ## 3
+Пара ключів згенерована командою:
+```
+openssl genpkey -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:8192
+```
+Розмір ключа 8192 біт обраний для забезпечення максимальної криптографічної стійкості. Файл server.key містить приватний ключ у форматі PKCS#8 (PEM), а також усю інформацію для відновлення відповідного публічного ключа.
+
+Certificate Signing Request (CSR) сформовано командою:
+```
+openssl req -new -key server.key -out server.csr \
+  -subj "/C=UA/L=Kyiv/O=KSE/CN=www.crypto.kse.ua/emailAddress=user@kse.org.ua"
+  -nodes
+```
+CSR містить публічний ключ та метаінформацію про власника. Перевірка вмісту:
+```
+openssl req -text -noout -in server.csr
+```
+Результат перевірки CSR:
+```
+Certificate Request:
+    Data:
+        Version: 1 (0x0)
+        Subject: C=UA, L=Kyiv, O=KSE, CN=www.crypto.kse.ua
+                 emailAddress=user@kse.org.ua
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (8192 bit)
+        Attributes:
+            (none)
+    Signature Algorithm: sha256WithRSAEncryption
+```
+
+Самопідписаний сертифікат сформовано командою:
+```
+openssl x509 -req -sha256 -in server.csr -signkey server.key -out server.crt
+```
+Дослідження вмісту сертифіката:
+```
+openssl x509 -text -noout -in server.crt
+```
+Сертифікат є самопідписаним: поля Issuer та Subject збігаються, тобто він підписаний тим самим ключем, який засвідчує. Це типова практика для локального тестування та розробки. 
 
 ## 4
 
 After tasks 1-3 we will get three special files:
 
-- server.key (Our private key, which we must keep as secret 🤫)
+- server.key (Our private key, which we must keep as secret)
 - server.crt (Our certificate)
-- server.csr (Request for certificate, inside which our public key is hidden) $\leftarrow$ Exactly what we will send to the other team.
+- server.csr (Request for certificate)
+
+We send the request to the other team, and as a result, we have the signed certificate
 
 ## 5
 
@@ -139,8 +203,8 @@ Halka Hanna
 
 Kate Yefimova
 
-1. 5
-2. 6
+1. Working with tasks 1-4
+2. Description in report of tasks 1-4
 
 ## Reference
 
