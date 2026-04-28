@@ -55,15 +55,15 @@ So after padding attacker will not get the same result again.
 
 We see that **PKCS#v1.5** has many weaknesses such as:
 
-- It is deterministic.
-- The hashed value can be extracted from the signature.
-- It has no formal security proof.
+$\star$ It is deterministic. \
+$\star$ The hashed value can be extracted from the signature. \
+$\star$ It has no formal security proof.
 
 **RSA-PSS** can beat all these weaknesses. 
 
-- It uses randomized signatures for the same message. (So it's rather probabilistic than deterministic)
-- We also can't anymore extract hash, because random salt  was added.
-- And it has a formal security proof of its security.
+$\star$ It uses randomized signatures for the same message. (So it's rather probabilistic than deterministic) \
+$\star$ We also can't anymore extract hash, because random salt  was added. \
+$\star$ And it has a formal security proof of its security.
 
 
 ## 6
@@ -82,9 +82,65 @@ After that we used special function `.encrypt()` and we pass on our message, and
 
 ## 7
 
+In subtask 7 we will use `crt.sh` service. We will look only in columns where Common Name = kse.ua.
+
+![Знімок екрана 2026-04-27 о 11.45.15 пп.png](Images/kse_in_crt.png)
+
+But this service has to mach data. So we will use this command:
+
+```bush
+curl -s 'https://crt.sh/?Identity=kse.ua&output=json' \
+| jq '
+[
+  .[]
+  | select((.common_name // "" | ascii_downcase) == "kse.ua")
+]
+| sort_by(.not_before)
+| .[0]
+'
+```
+
+We use `jq` to read all information from the website, and add `&output=json` in the end of the link.
+Then we search for columns Common Name = kse.ua, and sort them $\downarrow$ (.not_before) and took only 1 certificate.
+
+$\star$ "not_before": "2021-06-19T00:00:00", \
+$\star$ "not_after": "2021-09-17T23:59:59",
+
+For period, we need not_before ~~--~~ not_after. It's 90 days 23 hours 59 minutes and 59 seconds.
+
+**In summary:**
+
+$\star$ Fist certificate was issued: 2021-06-19 00:00:00. \
+$\star$ It was valid until: 2021-09-17 23:59:59. \
+$\star$ Period: approx 91 days.
+
 ## 8
 
+In subtask 8 we гіу `openssl` to pull out certificate. 
+
+```bush
+openssl s_client -connect kse.ua:443 -servername kse.ua </dev/null 2>/dev/null \
+  | openssl x509 -out crypto_artifacts/kse_current.crt  
+```
+
+**Then the entire eighth task we can reduce to xxx steps:**
+
+$\star$ Read certificate and transform it onto required format \
+$\star$ Calculate SHA-256 from certificate \
+$\star$ Add ":" and compare results \
+$\star$ (Additional) compare results without ":"
+
 ## Contribution
+
+Halka Hanna
+
+1. Working with tasks 5-8
+2. Description in report of tasks 5-8
+
+Kate Yefimova
+
+1. 5
+2. 6
 
 ## Reference
 
@@ -92,4 +148,8 @@ After that we used special function `.encrypt()` and we pass on our message, and
 2. <https://crypto.stackexchange.com/questions/47512/why-plain-rsa-encryption-does-not-achieve-cpa-security>
 3. <https://billatnapier.medium.com/provable-secure-signatures-with-rsa-8c1ca7d68433>
 4. <https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/>
-5. ...
+5. <https://stackoverflow.com/questions/54318942/python-how-do-i-extract-public-key-from-a-cert-file>
+
+## Interaction with AI
+
+1. [Correction of bash formula in task 8](https://chatgpt.com/share/69effdda-fdf8-83eb-b766-e233e1eec1b0)
